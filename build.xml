@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="${project.name}" default="default" basedir=".">
+    <property file="build.properties" />
+    
+    <path id="main.classpath">
+        <fileset dir="${lib.main.dir}" includes="*.jar" casesensitive="false" />
+    </path>
+    
+    <target name="init-build">
+        <mkdir dir="${build.main.classes.dir}" />
+        <mkdir dir="${dist.dir}" />
+    </target>
+    
+    <target name="init-javadoc">
+        <mkdir dir="${main.javadoc.dir}" />
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}" />
+        <delete dir="${dist.dir}" />
+    </target>
+    
+    <target name="build" depends="init-build">
+        <javac srcdir="${main.classes.dir}"
+               destdir="${build.main.classes.dir}"
+               classpathref="main.classpath"
+               debug="${build.debug}"
+               source="${build.source}"
+               target="${build.target}"
+               includeAntRuntime="false" />
+        
+        <jar destfile="${dist.jar}" update="true" duplicate="fail" strict="warn">
+            <fileset dir="${build.main.classes.dir}" />
+            <fileset dir="${main.resources.dir}" />
+            <zipgroupfileset dir="${lib.main.dir}" includes="*.jar" />
+            
+            <manifest>
+                <attribute name="Main-Class" value="${dist.mainclass}" />
+                <attribute name="Implementation-Title" value="${project.name}" />
+            </manifest>
+        </jar>
+    </target>
+	
+    <target name="javadoc" depends="init-javadoc">
+        <javadoc sourcepath="${main.classes.dir}"
+                 destdir="${javadoc.dir}"
+                 classpathref="main.classpath"
+                 overview="${main.javadoc.overview}"
+                 access="${javadoc.access}"
+                 source="${build.source}" />
+    </target>
+	
+    <target name="run" depends="build">
+        <java jar="${dist.jar}" />
+    </target>
+	
+    <target name="test">
+    </target>
+    
+    <target name="default">
+    </target>
+</project>
