@@ -15,11 +15,10 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.TableModel;
 
-import org.stratta.sql.MySQLConnection;
-import org.stratta.components.StrattaInsets;
 import org.stratta.components.StrattaTableCellRenderer;
 
 import com.google.common.base.Preconditions;
+import org.stratta.Spacing;
 
 public class SQLPanel extends JPanel implements ActionListener {
 	private final JTextArea _taStatement = new JTextArea();
@@ -97,14 +96,14 @@ public class SQLPanel extends JPanel implements ActionListener {
 		c.weighty = 0;
 		c.anchor = GridBagConstraints.NORTH;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.insets = StrattaInsets.DEFAULT;
+		c.insets = Spacing.getDefaultInsets();
 		add(spStatement, c);
 
 		c.gridx = 1;
 		c.weightx = 0;
 		c.anchor = GridBagConstraints.NORTHEAST;
 		c.fill = GridBagConstraints.NONE;
-		c.insets = new StrattaInsets(true, false, true, true);
+		c.insets = Spacing.getRightInsets(false);
 		add(_btnExecute, c);
 
 		c.gridx = 0;

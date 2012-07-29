@@ -3,7 +3,6 @@ package org.stratta.sql;
 import org.stratta.security.Password;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,12 +23,10 @@ import javax.swing.border.TitledBorder;
 
 import org.stratta.StrattaVersion;
 import org.stratta.Stratta;
-import org.stratta.sql.ConnectionHistory;
-import org.stratta.sql.ConnectionInfo;
 import org.stratta.components.JComboTextBox;
-import org.stratta.components.StrattaInsets;
 
 import com.google.common.base.Preconditions;
+import org.stratta.Spacing;
 
 /**
  * A dialog for editing database connection information.
@@ -172,12 +169,12 @@ public class ConnectionDialog extends JDialog implements ActionListener,
 		c.gridy = 0;
 		c.weightx = 1;
 		c.weighty = 1;
-		c.insets = StrattaInsets.DEFAULT;
+		c.insets = Spacing.getDefaultInsets();
 		add(buildConnectionPanel(), c);
 
 		c.gridy = 1;
 		c.anchor = GridBagConstraints.SOUTHEAST;
-		c.insets = StrattaInsets.BOTTOM_FAR;
+		c.insets = Spacing.getBottomInsets(true);
 		add(buildButtonsPanel(), c);
 	}
 
@@ -226,8 +223,7 @@ public class ConnectionDialog extends JDialog implements ActionListener,
 	}
 
 	private JPanel buildButtonsPanel() {
-		JPanel pnlButtons = new JPanel(new GridLayout(1, 3,
-				StrattaInsets.DEFAULT_GAP, 0));
+		JPanel pnlButtons = new JPanel(Spacing.getHorizontalLayout(3));
 
 		pnlButtons.add(_btnConnect);
 		pnlButtons.add(_btnClear);

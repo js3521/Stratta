@@ -1,6 +1,5 @@
 package org.stratta.exception;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -14,10 +13,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import org.stratta.Spacing;
 
-import org.stratta.StrattaVersion;
-import org.stratta.components.StrattaInsets;
-import org.stratta.components.StrattaInsets;
 import org.stratta.StrattaVersion;
 
 /**
@@ -77,7 +74,7 @@ public class ExceptionDialog extends JDialog implements ActionListener,
 		c.weightx = 0;
 		c.weighty = 0;
 		c.anchor = GridBagConstraints.NORTHWEST;
-		c.insets = StrattaInsets.TOP_NEAR;
+		c.insets = Spacing.getTopInsets(false);
 		add(new JLabel(heading), c);
 
 		c.gridy = 1;
@@ -85,7 +82,7 @@ public class ExceptionDialog extends JDialog implements ActionListener,
 		c.weighty = 1;
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.CENTER;
-		c.insets = StrattaInsets.DEFAULT;
+		c.insets = Spacing.getDefaultInsets();
 		add(buildTextArea(message), c);
 
 		c.gridy = 2;
@@ -93,7 +90,7 @@ public class ExceptionDialog extends JDialog implements ActionListener,
 		c.weighty = 0;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.SOUTHEAST;
-		c.insets = StrattaInsets.BOTTOM_FAR;
+		c.insets = Spacing.getBottomInsets(true);
 		add(_btnClose, c);
 	}
 

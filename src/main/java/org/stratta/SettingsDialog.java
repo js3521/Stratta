@@ -1,27 +1,20 @@
 package org.stratta;
 
+import com.google.common.base.Preconditions;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-
-import org.stratta.Stratta;
-import org.stratta.components.StrattaInsets;
 import org.stratta.model.ModelSelectionPanel;
 
-import com.google.common.base.Preconditions;
-import org.stratta.model.ModelSelectionPanel;
-import org.stratta.Stratta;
-import org.stratta.components.StrattaInsets;
+
 
 public class SettingsDialog extends JDialog implements ActionListener, WindowListener {
 	public static final int DATAMODEL_TAB = 0;
@@ -45,7 +38,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		setResizable(false);
 		addWindowListener(this);
 		getRootPane().setDefaultButton(_btnOK);
-		setSize(480, 320);
+		setSize(360, 480);
 		
 		// Add component listeners
 		_btnOK.addActionListener(this);
@@ -93,7 +86,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 		c.weighty = 0;
 		c.anchor = GridBagConstraints.SOUTHEAST;
 		c.fill = GridBagConstraints.NONE;
-		c.insets = StrattaInsets.BOTTOM_FAR;
+		c.insets = Spacing.getBottomInsets(true);
 		add(buildButtonsPanel(), c);
 	}
 	
@@ -108,8 +101,7 @@ public class SettingsDialog extends JDialog implements ActionListener, WindowLis
 	}
 	
 	private JPanel buildButtonsPanel() {
-		JPanel pnlButtons = new JPanel(new GridLayout(1, 2,
-				StrattaInsets.DEFAULT_GAP, 0));
+		JPanel pnlButtons = new JPanel(Spacing.getHorizontalLayout(2));
 		
 		pnlButtons.add(_btnOK);
 		pnlButtons.add(_btnCancel);
