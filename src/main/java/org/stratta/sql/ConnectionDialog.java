@@ -30,223 +30,227 @@ import org.stratta.Spacing;
 
 /**
  * A dialog for editing database connection information.
- * 
+ *
  * @author Joshua Swank
  */
 public class ConnectionDialog extends JDialog implements ActionListener,
-		WindowListener, ItemListener {
+        WindowListener, ItemListener {
 
-	// Controls
-	private final JComboTextBox<ConnectionInfo> _cboHost = new JComboTextBox<>();
-	private final JTextField _txtUser = new JTextField(16),
-			_txtPort = new JTextField(5);
-	private final JPasswordField _txtPassword = new JPasswordField(16);
-	private final JCheckBox _chkStorePassword = new JCheckBox("Store Password");
-	private final JButton _btnConnect = new JButton("Connect"),
-			_btnClear = new JButton("Clear"),
-			_btnCancel = new JButton("Cancel");
+    // Controls
+    private final JComboTextBox<ConnectionInfo> _cboHost = new JComboTextBox<>();
+    private final JTextField _txtUser = new JTextField(16),
+            _txtPort = new JTextField(5);
+    private final JPasswordField _txtPassword = new JPasswordField(16);
+    private final JCheckBox _chkStorePassword = new JCheckBox("Store Password");
+    private final JButton _btnConnect = new JButton("Connect"),
+            _btnClear = new JButton("Clear"),
+            _btnCancel = new JButton("Cancel");
+    private final Stratta _application;
+    private final ConnectionHistory _history;
 
-	private final Stratta _application;
-	private final ConnectionHistory _history;
+    public ConnectionDialog(JFrame owner, Stratta application,
+            ConnectionHistory history) {
+        super(owner, StrattaVersion.TITLE, true);
 
-	public ConnectionDialog(JFrame owner, Stratta application,
-			ConnectionHistory history) {
-		super(owner, StrattaVersion.TITLE, true);
+        // Check preconditions and initialize fields
+        Preconditions.checkNotNull(application);
+        _application = application;
 
-		// Check preconditions and initialize fields
-		Preconditions.checkNotNull(application);
-		_application = application;
+        Preconditions.checkNotNull(history);
+        _history = history;
 
-		Preconditions.checkNotNull(history);
-		_history = history;
+        // Set component states
+        populateHistoryData();
 
-		// Set component states
-		populateHistoryData();
+        // Set dialog state
+        setResizable(false);
+        addWindowListener(this);
+        getRootPane().setDefaultButton(_btnConnect);
 
-		// Set dialog state
-		setResizable(false);
-		addWindowListener(this);
-		getRootPane().setDefaultButton(_btnConnect);
+        // Add component listeners
+        _btnConnect.addActionListener(this);
+        _btnClear.addActionListener(this);
+        _btnCancel.addActionListener(this);
 
-		// Add component listeners
-		_btnConnect.addActionListener(this);
-		_btnClear.addActionListener(this);
-		_btnCancel.addActionListener(this);
+        _cboHost.addItemListener(this);
 
-		_cboHost.addItemListener(this);
+        addComponents();
 
-		addComponents();
-		
-		pack();
-		setLocationRelativeTo(owner);
-	}
+        pack();
+        setLocationRelativeTo(owner);
+    }
 
-	public void actionPerformed(ActionEvent e) {
-		Object source = e.getSource();
+    public void actionPerformed(ActionEvent e) {
+        Object source = e.getSource();
 
-		if (source == _btnConnect)
-			_btnConnect_ActionPerformed(e);
-		else if (source == _btnClear)
-			_btnClear_ActionPerformed(e);
-		else if (source == _btnCancel)
-			_btnCancel_ActionPerformed(e);
-	}
+        if (source == _btnConnect) {
+            _btnConnect_ActionPerformed(e);
+        } else if (source == _btnClear) {
+            _btnClear_ActionPerformed(e);
+        } else if (source == _btnCancel) {
+            _btnCancel_ActionPerformed(e);
+        }
+    }
 
-	public void windowClosing(WindowEvent e) {
-		_application.closeConnectionDialog();
-	}
+    public void windowClosing(WindowEvent e) {
+        _application.closeConnectionDialog();
+    }
 
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED
-				&& e.getItem() instanceof ConnectionInfo)
-			updateInfo((ConnectionInfo) e.getItem());
-	}
+    public void itemStateChanged(ItemEvent e) {
+        Object source = e.getSource();
+        
+        if (source == _cboHost
+                && e.getStateChange() == ItemEvent.SELECTED
+                && e.getItem() instanceof ConnectionInfo) {
+            updateInfo((ConnectionInfo) e.getItem());
+        }
+    }
 
-	private void populateHistoryData() {
-		DefaultComboBoxModel<ConnectionInfo> model = new DefaultComboBoxModel<>(
-				_history.getConnections());
-		_cboHost.setModel(model);
+    private void populateHistoryData() {
+        DefaultComboBoxModel<ConnectionInfo> model = new DefaultComboBoxModel<>(
+                _history.getConnections());
+        _cboHost.setModel(model);
 
-		ConnectionInfo mostRecent = _history.getMostRecent();
+        ConnectionInfo mostRecent = _history.getMostRecent();
 
-		_cboHost.setSelectedItem(mostRecent);
-		updateInfo(mostRecent);
-	}
+        _cboHost.setSelectedItem(mostRecent);
+        updateInfo(mostRecent);
+    }
 
-	private void updateInfo(ConnectionInfo connInfo) {
-		if (connInfo != null) {
-			Password password = connInfo.getPassword();
+    private void updateInfo(ConnectionInfo connInfo) {
+        if (connInfo != null) {
+            Password password = connInfo.getPassword();
 
-			_txtPort.setText(String.valueOf(connInfo.getPort()));
-			_txtUser.setText(connInfo.getUser());
+            _txtPort.setText(String.valueOf(connInfo.getPort()));
+            _txtUser.setText(connInfo.getUser());
 
-			if (!password.isBlank()) {
-				_txtPassword.setText(new String(password.getPassword()));
-				_chkStorePassword.setSelected(true);
-			} else {
-				_txtPassword.setText(new String());
-				_chkStorePassword.setSelected(false);
-			}
-		}
-	}
+            if (!password.isBlank()) {
+                _txtPassword.setText(new String(password.getPassword()));
+                _chkStorePassword.setSelected(true);
+            } else {
+                _txtPassword.setText(new String());
+                _chkStorePassword.setSelected(false);
+            }
+        }
+    }
 
-	private void _btnConnect_ActionPerformed(ActionEvent e) {
-		_application.connect(getConnectionInfo());
-	}
+    private void _btnConnect_ActionPerformed(ActionEvent e) {
+        _application.connect(getConnectionInfo());
+    }
 
-	private void _btnClear_ActionPerformed(ActionEvent e) {
-		_cboHost.setSelectedIndex(-1);
-		_txtPort.setText(new String());
-		_txtUser.setText(new String());
-		_txtPassword.setText(new String());
-	}
+    private void _btnClear_ActionPerformed(ActionEvent e) {
+        _cboHost.setSelectedIndex(-1);
+        _txtPort.setText(new String());
+        _txtUser.setText(new String());
+        _txtPassword.setText(new String());
+    }
 
-	private void _btnCancel_ActionPerformed(ActionEvent e) {
-		_application.closeConnectionDialog();
-	}
+    private void _btnCancel_ActionPerformed(ActionEvent e) {
+        _application.closeConnectionDialog();
+    }
 
-	private ConnectionInfo getConnectionInfo() {
-		Password password = new Password(_txtPassword.getPassword(),
-				_chkStorePassword.isSelected());
+    private ConnectionInfo getConnectionInfo() {
+        Password password = new Password(_txtPassword.getPassword(),
+                _chkStorePassword.isSelected());
 
-		return new ConnectionInfo(_cboHost.getText(), getPort(),
-				_txtUser.getText(), password);
-	}
+        return new ConnectionInfo(_cboHost.getText(), getPort(),
+                _txtUser.getText(), password);
+    }
 
-	private int getPort() {
-		try {
-			return Integer.valueOf(_txtPort.getText());
-		} catch (NumberFormatException e) {
-			return -1;
-		}
-	}
+    private int getPort() {
+        try {
+            return Integer.valueOf(_txtPort.getText());
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
 
-	private void addComponents() {
-		GridBagConstraints c = new GridBagConstraints();
-		setLayout(new GridBagLayout());
+    private void addComponents() {
+        GridBagConstraints c = new GridBagConstraints();
+        setLayout(new GridBagLayout());
 
-		c.gridx = 0;
-		c.gridy = 0;
-		c.weightx = 1;
-		c.weighty = 1;
-		c.insets = Spacing.getDefaultInsets();
-		add(buildConnectionPanel(), c);
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.insets = Spacing.getDefaultInsets();
+        add(buildConnectionPanel(), c);
 
-		c.gridy = 1;
-		c.anchor = GridBagConstraints.SOUTHEAST;
-		c.insets = Spacing.getBottomInsets(true);
-		add(buildButtonsPanel(), c);
-	}
+        c.gridy = 1;
+        c.anchor = GridBagConstraints.SOUTHEAST;
+        c.insets = Spacing.getBottomInsets(true);
+        add(buildButtonsPanel(), c);
+    }
 
-	private JPanel buildConnectionPanel() {
-		JPanel pnlConnection = new JPanel(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
+    private JPanel buildConnectionPanel() {
+        JPanel pnlConnection = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
 
-		pnlConnection.setBorder(new TitledBorder("Connect to MySQL Server"));
+        pnlConnection.setBorder(new TitledBorder("Connect to MySQL Server"));
 
-		c.gridx = 0;
-		c.gridy = 0;
-		c.weightx = 1;
-		c.weighty = 1;
-		c.anchor = GridBagConstraints.EAST;
-		pnlConnection.add(new Label("Host"), c);
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.anchor = GridBagConstraints.EAST;
+        pnlConnection.add(new Label("Host"), c);
 
-		c.gridy = 1;
-		pnlConnection.add(new Label("Port"), c);
+        c.gridy = 1;
+        pnlConnection.add(new Label("Port"), c);
 
-		c.gridy = 2;
-		pnlConnection.add(new Label("User"), c);
+        c.gridy = 2;
+        pnlConnection.add(new Label("User"), c);
 
-		c.gridy = 3;
-		pnlConnection.add(new Label("Password"), c);
+        c.gridy = 3;
+        pnlConnection.add(new Label("Password"), c);
 
-		c.gridx = 1;
-		c.gridy = 0;
-		c.anchor = GridBagConstraints.WEST;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		pnlConnection.add(_cboHost, c);
+        c.gridx = 1;
+        c.gridy = 0;
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        pnlConnection.add(_cboHost, c);
 
-		c.gridy = 1;
-		c.fill = GridBagConstraints.NONE;
-		pnlConnection.add(_txtPort, c);
+        c.gridy = 1;
+        c.fill = GridBagConstraints.NONE;
+        pnlConnection.add(_txtPort, c);
 
-		c.gridy = 2;
-		pnlConnection.add(_txtUser, c);
+        c.gridy = 2;
+        pnlConnection.add(_txtUser, c);
 
-		c.gridy = 3;
-		pnlConnection.add(_txtPassword, c);
+        c.gridy = 3;
+        pnlConnection.add(_txtPassword, c);
 
-		c.gridy = 4;
-		pnlConnection.add(_chkStorePassword, c);
+        c.gridy = 4;
+        pnlConnection.add(_chkStorePassword, c);
 
-		return pnlConnection;
-	}
+        return pnlConnection;
+    }
 
-	private JPanel buildButtonsPanel() {
-		JPanel pnlButtons = new JPanel(Spacing.getHorizontalLayout(3));
+    private JPanel buildButtonsPanel() {
+        JPanel pnlButtons = new JPanel(Spacing.getHorizontalLayout(3));
 
-		pnlButtons.add(_btnConnect);
-		pnlButtons.add(_btnClear);
-		pnlButtons.add(_btnCancel);
+        pnlButtons.add(_btnConnect);
+        pnlButtons.add(_btnClear);
+        pnlButtons.add(_btnCancel);
 
-		return pnlButtons;
-	}
+        return pnlButtons;
+    }
 
-	public void windowActivated(WindowEvent e) {
-	}
+    public void windowActivated(WindowEvent e) {
+    }
 
-	public void windowClosed(WindowEvent e) {
-	}
+    public void windowClosed(WindowEvent e) {
+    }
 
-	public void windowDeactivated(WindowEvent e) {
-	}
+    public void windowDeactivated(WindowEvent e) {
+    }
 
-	public void windowDeiconified(WindowEvent e) {
-	}
+    public void windowDeiconified(WindowEvent e) {
+    }
 
-	public void windowIconified(WindowEvent e) {
-	}
+    public void windowIconified(WindowEvent e) {
+    }
 
-	public void windowOpened(WindowEvent e) {
-	}
+    public void windowOpened(WindowEvent e) {
+    }
 }

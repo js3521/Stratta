@@ -6,47 +6,37 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import org.stratta.exception.ExceptionHandler;
+import org.stratta.model.DataModelProviders;
 import org.stratta.sql.ConnectionHistory;
 
-/**
- * The Stratta file access object.
- *
- * @author Joshua Swank
- */
 public final class FileAccessor {
 
     private static final String _HISTORY_FILE = "history.dat";
-    private final ExceptionHandler _exceptionHandler;
+    private static final String _CATALOGS_FILE = "catalogs.dat";
 
-    public FileAccessor(ExceptionHandler exceptionHandler) {
-        Preconditions.checkNotNull(exceptionHandler);
+    public FileAccessor() {
+    }
 
-        _exceptionHandler = exceptionHandler;
+    public void writeCatalogs(DataModelProviders.ProviderCatalogs catalogs) throws IOException {
+        writeObject(_CATALOGS_FILE, catalogs);
+    }
+
+    public DataModelProviders.ProviderCatalogs readCatalogs() {
+        return readObject(_CATALOGS_FILE, DataModelProviders.ProviderCatalogs.class);
+    }
+
+    public void writeHistory(ConnectionHistory history) throws IOException {
+        writeObject(_HISTORY_FILE, history);
     }
 
     public ConnectionHistory readHistory() {
-        ConnectionHistory history = readObject(_HISTORY_FILE,
-                ConnectionHistory.class);
-
-        if (history == null) {
-            history = new ConnectionHistory();
-        }
-
-        return history;
-    }
-
-    public void writeHistory(ConnectionHistory history) {
-        Preconditions.checkNotNull(history);
-
-        try {
-            writeObject(_HISTORY_FILE, history);
-        } catch (IOException e) {
-            _exceptionHandler.handle(e);
-        }
+        return readObject(_HISTORY_FILE, ConnectionHistory.class);
     }
 
     private <T> T readObject(String file, Class<T> c) {
+        Preconditions.checkNotNull(file);
+        Preconditions.checkNotNull(c);
+
         Object obj = null;
 
         try {
@@ -68,6 +58,9 @@ public final class FileAccessor {
     }
 
     private void writeObject(String file, Object obj) throws IOException {
+        Preconditions.checkNotNull(file);
+        Preconditions.checkNotNull(obj);
+
         ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(
                 file));
 

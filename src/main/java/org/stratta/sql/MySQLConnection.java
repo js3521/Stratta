@@ -24,7 +24,7 @@ public class MySQLConnection {
 	private Connection _conn = null;
 	private ConnectionInfo _connInfo = null;
 	private boolean _connected = false;
-	private String _schema = null;
+	private String _catalog = null;
 
 	private final ExceptionHandler _exceptionHandler;
 
@@ -55,7 +55,7 @@ public class MySQLConnection {
 		close();
 		_connected = false;
 		_connInfo = null;
-		_schema = null;
+		_catalog = null;
 	}
 
 	public boolean isConnected() {
@@ -90,7 +90,7 @@ public class MySQLConnection {
 		
 		Matcher useMatcher = _USE_PATTERN.matcher(statement);
 		if(useMatcher.matches()) {
-			setSchema(useMatcher.group(1));
+			setCatalog(useMatcher.group(1));
 			return tableModels;
 		}
 		
@@ -123,13 +123,13 @@ public class MySQLConnection {
 		_conn = null;
 	}
 
-	public void setSchema(String schema) {
-		Preconditions.checkNotNull(schema);
+	public void setCatalog(String catalog) {
+		Preconditions.checkNotNull(catalog);
 
 		if (isConnected())
 			try {
-				_conn.setCatalog(schema);
-				_schema = schema;
+				_conn.setCatalog(catalog);
+				_catalog = catalog;
 			} catch (SQLException e) {
 				_exceptionHandler.handle(e);
 			}
@@ -137,15 +137,15 @@ public class MySQLConnection {
 			_exceptionHandler.notConnectedToServer();
 	}
 
-	public String getSchema() {
-		return _schema;
+	public String getCatalog() {
+		return _catalog;
 	}
 
 	private void open(ConnectionInfo connInfo) throws SQLException {
 		_conn = DriverManager.getConnection(connInfo.getConnectionString());
 
-		if (_schema != null)
-			setSchema(_schema);
+		if (_catalog != null)
+			setCatalog(_catalog);
 	}
 
 	private void open() throws SQLException {

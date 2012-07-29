@@ -1,7 +1,9 @@
 package org.stratta;
 
+import java.io.IOException;
 import org.stratta.io.FileAccessor;
 import org.stratta.exception.ExceptionHandler;
+import org.stratta.model.DataModelProviders;
 import org.stratta.sql.MySQLConnection;
 import org.stratta.sql.ConnectionHistory;
 import org.stratta.sql.ConnectionInfo;
@@ -11,14 +13,18 @@ public class Stratta {
 
     private final ExceptionHandler _exceptionHandler = new ExceptionHandler();
     private final MySQLConnection _conn = new MySQLConnection(_exceptionHandler);
-    private final FileAccessor _fao = new FileAccessor(_exceptionHandler);
-    private final ConnectionHistory _history = _fao.readHistory();
+    private final FileAccessor _fileAccessor = new FileAccessor();
+    private final ConnectionHistory _history;
+    private final DataModelProviders _dataModels = new DataModelProviders();
     private ConnectionDialog _connectionDialog;
     private StrattaFrame _strattaFrame;
     private SettingsDialog _settingsDialog;
 
     public Stratta() {
         showStrattaFrame();
+
+        ConnectionHistory history = _fileAccessor.readHistory();
+        _history = (history != null) ? history : new ConnectionHistory();
     }
 
     public void closeConnectionDialog() {
@@ -36,7 +42,12 @@ public class Stratta {
     public void connect(ConnectionInfo connInfo) {
         if (_conn.connect(connInfo)) {
             _history.connectionMade(connInfo);
-            _fao.writeHistory(_history);
+
+            try {
+                _fileAccessor.writeHistory(_history);
+            } catch (IOException e) {
+                _exceptionHandler.handle(e);
+            }
 
             disposeConnectionDialog();
         }
@@ -56,7 +67,7 @@ public class Stratta {
     }
 
     public void showSettingsDialog(int tab) {
-        _settingsDialog = new SettingsDialog(_strattaFrame, this, tab);
+        _settingsDialog = new SettingsDialog(_strattaFrame, this, _exceptionHandler, _dataModels, tab);
 
         _settingsDialog.setVisible(true);
     }
@@ -96,7 +107,7 @@ public class Stratta {
             _exceptionHandler.setOwner(null);
         }
     }
-    
+
     public static void main(String[] args) {
         new Stratta();
     }

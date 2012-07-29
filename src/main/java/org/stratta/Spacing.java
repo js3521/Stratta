@@ -30,6 +30,14 @@ public final class Spacing {
         return new Insets(DEFAULT_GAP, DEFAULT_GAP, far ? LARGE_GAP : 0, DEFAULT_GAP);
     }
     
+    public static Insets getVerticalInsets() {
+        return new Insets(DEFAULT_GAP, 0, 0, DEFAULT_GAP);
+    }
+    
+    public static Insets getHorizontalInsets() {
+        return new Insets(0, DEFAULT_GAP, DEFAULT_GAP, 0);
+    }
+    
     public static GridLayout getHorizontalLayout(int cols) {
         return new GridLayout(1, cols, DEFAULT_GAP, 0);
     }
