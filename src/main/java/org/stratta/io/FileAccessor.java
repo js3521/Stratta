@@ -6,8 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import org.stratta.model.DataModelProviders;
-import org.stratta.sql.ConnectionHistory;
 
 public final class FileAccessor {
 
@@ -25,15 +25,7 @@ public final class FileAccessor {
         return readObject(_CATALOGS_FILE, DataModelProviders.ProviderCatalogs.class);
     }
 
-    public void writeHistory(ConnectionHistory history) throws IOException {
-        writeObject(_HISTORY_FILE, history);
-    }
-
-    public ConnectionHistory readHistory() {
-        return readObject(_HISTORY_FILE, ConnectionHistory.class);
-    }
-
-    private <T> T readObject(String file, Class<T> c) {
+    public <T> T readObject(String file, Class<T> c) {
         Preconditions.checkNotNull(file);
         Preconditions.checkNotNull(c);
 
@@ -57,7 +49,7 @@ public final class FileAccessor {
         return (T) obj;
     }
 
-    private void writeObject(String file, Object obj) throws IOException {
+    public void writeObject(String file, Serializable obj) throws IOException {
         Preconditions.checkNotNull(file);
         Preconditions.checkNotNull(obj);
 

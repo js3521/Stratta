@@ -1,11 +1,9 @@
 package org.stratta;
 
 import java.io.IOException;
-import org.stratta.io.FileAccessor;
 import org.stratta.exception.ExceptionHandler;
 import org.stratta.model.DataModelProviders;
 import org.stratta.sql.MySQLConnection;
-import org.stratta.sql.ConnectionHistory;
 import org.stratta.sql.ConnectionInfo;
 import org.stratta.sql.ConnectionDialog;
 
@@ -13,8 +11,7 @@ public class Stratta {
 
     private final ExceptionHandler _exceptionHandler = new ExceptionHandler();
     private final MySQLConnection _conn = new MySQLConnection(_exceptionHandler);
-    private final FileAccessor _fileAccessor = new FileAccessor();
-    private final ConnectionHistory _history;
+    private final StrattaState _state = StrattaState.load();
     private final DataModelProviders _dataModels = new DataModelProviders();
     private ConnectionDialog _connectionDialog;
     private StrattaFrame _strattaFrame;
@@ -22,9 +19,6 @@ public class Stratta {
 
     public Stratta() {
         showStrattaFrame();
-
-        ConnectionHistory history = _fileAccessor.readHistory();
-        _history = (history != null) ? history : new ConnectionHistory();
     }
 
     public void closeConnectionDialog() {
@@ -41,10 +35,10 @@ public class Stratta {
 
     public void connect(ConnectionInfo connInfo) {
         if (_conn.connect(connInfo)) {
-            _history.connectionMade(connInfo);
+            _state.connMade(connInfo);
 
             try {
-                _fileAccessor.writeHistory(_history);
+                _state.save();
             } catch (IOException e) {
                 _exceptionHandler.handle(e);
             }
@@ -61,7 +55,7 @@ public class Stratta {
     }
 
     public void showConnectionDialog() {
-        _connectionDialog = new ConnectionDialog(_strattaFrame, this, _history);
+        _connectionDialog = new ConnectionDialog(_strattaFrame, this, _state);
 
         _connectionDialog.setVisible(true);
     }

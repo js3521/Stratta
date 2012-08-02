@@ -27,6 +27,7 @@ import org.stratta.components.JComboTextBox;
 
 import com.google.common.base.Preconditions;
 import org.stratta.Spacing;
+import org.stratta.StrattaState;
 
 /**
  * A dialog for editing database connection information.
@@ -46,18 +47,18 @@ public class ConnectionDialog extends JDialog implements ActionListener,
             _btnClear = new JButton("Clear"),
             _btnCancel = new JButton("Cancel");
     private final Stratta _application;
-    private final ConnectionHistory _history;
+    private final StrattaState _state;
 
     public ConnectionDialog(JFrame owner, Stratta application,
-            ConnectionHistory history) {
+            StrattaState state) {
         super(owner, StrattaVersion.TITLE, true);
 
         // Check preconditions and initialize fields
         Preconditions.checkNotNull(application);
         _application = application;
 
-        Preconditions.checkNotNull(history);
-        _history = history;
+        Preconditions.checkNotNull(state);
+        _state = state;
 
         // Set component states
         populateHistoryData();
@@ -108,10 +109,10 @@ public class ConnectionDialog extends JDialog implements ActionListener,
 
     private void populateHistoryData() {
         DefaultComboBoxModel<ConnectionInfo> model = new DefaultComboBoxModel<>(
-                _history.getConnections());
+                _state.getConnHistory());
         _cboHost.setModel(model);
 
-        ConnectionInfo mostRecent = _history.getMostRecent();
+        ConnectionInfo mostRecent = _state.getMostRecentConn();
 
         _cboHost.setSelectedItem(mostRecent);
         updateInfo(mostRecent);
