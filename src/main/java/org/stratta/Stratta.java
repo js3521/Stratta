@@ -12,7 +12,7 @@ public class Stratta {
     private final ExceptionHandler _exceptionHandler = new ExceptionHandler();
     private final MySQLConnection _conn = new MySQLConnection(_exceptionHandler);
     private final StrattaState _state = StrattaState.load();
-    private final DataModelProviders _dataModels = new DataModelProviders();
+    private final DataModelProviders _dataModels = new DataModelProviders(_state);
     private ConnectionDialog _connectionDialog;
     private StrattaFrame _strattaFrame;
     private SettingsDialog _settingsDialog;

@@ -1,13 +1,13 @@
 package org.stratta.model;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
-import org.stratta.io.FileAccessor;
+import org.stratta.StrattaState;
 
 /**
  *
@@ -16,13 +16,14 @@ import org.stratta.io.FileAccessor;
 public final class DataModelProviders implements Iterable<DataModel> {
 
     private final ImmutableList<DataModel> _dataModels;
-    private final ProviderCatalogs _providerCatalogs;
-    private final FileAccessor _fileAccessor = new FileAccessor();
+    private final StrattaState _state;
 
-    public DataModelProviders() {
+    public DataModelProviders(StrattaState state) {
+        Preconditions.checkNotNull(state);
+        _state = state;
+
         ImmutableList.Builder<DataModel> builder = ImmutableList.builder();
         ServiceLoader<DataModel> loader = ServiceLoader.load(DataModel.class);
-        ProviderCatalogs savedCatalogs = _fileAccessor.readCatalogs();
 
         for (DataModel model : loader) {
             builder.add(model);
@@ -30,11 +31,8 @@ public final class DataModelProviders implements Iterable<DataModel> {
 
         _dataModels = builder.build();
 
-        if (savedCatalogs != null) {
-            savedCatalogs.updateProviders(_dataModels);
-        }
-
-        _providerCatalogs = new ProviderCatalogs(_dataModels);
+        updateProviders(_state.getProviderCatalogs(), _dataModels);
+        _state.setProviderCatalogs(_dataModels);
     }
 
     public DataModel[] toArray() {
@@ -42,35 +40,21 @@ public final class DataModelProviders implements Iterable<DataModel> {
     }
 
     public void saveCatalogs() throws IOException {
-        _fileAccessor.writeCatalogs(_providerCatalogs);
+        _state.save();
     }
-    
+
     @Override
     public Iterator<DataModel> iterator() {
         return _dataModels.iterator();
     }
 
-    public static class ProviderCatalogs implements Serializable {
+    private void updateProviders(Map<Class<? extends DataModel>, DataModel.CatalogMap> providerCatalogs,
+            List<DataModel> dataModels) {
+        for (DataModel model : dataModels) {
+            Class<? extends DataModel> modelClass = model.getClass();
 
-        private final ImmutableMap<Class<? extends DataModel>, DataModel.CatalogMap> _catalogs;
-
-        private ProviderCatalogs(List<DataModel> dataModels) {
-            ImmutableMap.Builder<Class<? extends DataModel>, DataModel.CatalogMap> builder = ImmutableMap.builder();
-
-            for (DataModel model : dataModels) {
-                builder.put(model.getClass(), model.getCatalogMap());
-            }
-
-            _catalogs = builder.build();
-        }
-
-        private void updateProviders(List<DataModel> dataModels) {
-            for (DataModel model : dataModels) {
-                Class<? extends DataModel> modelClass = model.getClass();
-                
-                if (_catalogs.containsKey(modelClass)) {
-                    model.setCatalogMap(_catalogs.get(modelClass));
-                }
+            if (providerCatalogs.containsKey(modelClass)) {
+                model.setCatalogMap(providerCatalogs.get(modelClass));
             }
         }
     }

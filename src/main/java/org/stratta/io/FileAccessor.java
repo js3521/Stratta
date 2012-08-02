@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import org.stratta.model.DataModelProviders;
 
 public final class FileAccessor {
 
@@ -15,14 +14,6 @@ public final class FileAccessor {
     private static final String _CATALOGS_FILE = "catalogs.dat";
 
     public FileAccessor() {
-    }
-
-    public void writeCatalogs(DataModelProviders.ProviderCatalogs catalogs) throws IOException {
-        writeObject(_CATALOGS_FILE, catalogs);
-    }
-
-    public DataModelProviders.ProviderCatalogs readCatalogs() {
-        return readObject(_CATALOGS_FILE, DataModelProviders.ProviderCatalogs.class);
     }
 
     public <T> T readObject(String file, Class<T> c) {

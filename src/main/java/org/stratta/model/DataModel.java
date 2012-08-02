@@ -26,19 +26,19 @@ public abstract class DataModel {
         _catalogs.setCatalog(name, catalog);
     }
     
+    public final CatalogMap getCatalogMap() {
+        return _catalogs;
+    }
+    
     protected final void setCatalogMap(CatalogMap catalogMap) {
         _catalogs.setCatalogs(catalogMap);
-    }
-
-    protected final CatalogMap getCatalogMap() {
-        return _catalogs;
     }
 
     public abstract String getName();
 
     public abstract Set<String> getCatalogNames();
 
-    protected static final class CatalogMap extends HashMap<String, String> {
+    public static final class CatalogMap extends HashMap<String, String> {
 
         private CatalogMap(Set<String> catalogNames) {
             Preconditions.checkNotNull(catalogNames);
